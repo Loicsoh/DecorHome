@@ -9,12 +9,8 @@ body{
     font-family: 'poppins', sans-serif;
     height: 100vh;
     width: 100vw;
-    background-image: url('/images/depositphotos_101304830-stock-photo-vintage-landscape-of-winter-field.jpg');
+    background-image: url('/DecorHome/images/depositphotos_101304830-stock-photo-vintage-landscape-of-winter-field.jpg');
     background-size: cover;
-}
-
-header {
-     
 }
 
 .navbar {
@@ -82,7 +78,13 @@ header {
         display: flex;
         justify-content: center;
         align-items: center;
+        margin-left: -100;
+        transition: all 0.5s ease-in-out;
 
+    }
+
+    .nav-links .mobile-menu {
+        margin-left: 0;
     }
 
     .nav-links ul {

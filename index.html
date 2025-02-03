@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
-    <title>NavBAR</title>
+    <link rel="stylesheet" href="/DecorHome/style.css">
+    <title>DécorHome</title>
 </head>
 <body>
     <nav class="navbar">
@@ -18,10 +18,17 @@
                 <li><a href="">A propos</a></li>
             </ul>
         </div>
-        <img src="/images/menu-regular-24 (1).png" alt="hamburger" class="menuhamburger">
+        <img src="/DecorHome/images/menu-regular-24 (1).png" alt="hamburger" class="menuhamburger">
     </nav>
 
    
-    <header></header>
+    <script>
+        const menuhamburger = document.querySelector(".menu-hamburger")
+        const navLinks = document.querySelector(".nav-links")
+
+        menuhamburger.addEventListener("click", () => {
+            navLinks.classList.toggle("mobile-menu")
+        })
+    </script>
 </body>
 </html>
