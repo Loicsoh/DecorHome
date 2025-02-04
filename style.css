@@ -9,7 +9,7 @@ body{
     font-family: 'poppins', sans-serif;
     height: 100vh;
     width: 100vw;
-    background-image: url('/images/depositphotos_101304830-stock-photo-vintage-landscape-of-winter-field.jpg');
+    /* background-image: url('/images/depositphotos_101304830-stock-photo-vintage-landscape-of-winter-field.jpg'); */
     background-size: cover;
 }
 
@@ -21,15 +21,18 @@ body{
     align-items: center;
     width: 100%;
     box-sizing: border-box;
+    z-index: 100;
 }
 
 .navbar a {
-    color: #fff;
+    color: #3407fc;
+    font-weight: bold;
 }
 
 .navbar .logo {
     font-size: 2rem;
     font-weight: bold;
+    color: #fff;
 }
 
 
@@ -41,25 +44,69 @@ body{
     margin: 0 25px;
 }
 
-.navbar .nav-links ul li.active a {
+ .navbar .nav-links ul li.active a {
     color: red;
     font-weight: 600;
 }
 
 .navbar .menuhamburger{
     display: none;
+    width: 35px;
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    width: 35px;
 }
 
 @media screen and (max-width: 900px) {
+    .navbar{
+        padding: 0;
+    }
+    .navbar.logo{
+        position: absolute;
+        top: 50px;
+        left: 50px;
+    }
+    .navbar .menuhamburge{
+        display: block;
+    }
     .nav-links{
-        display: none;
+        top: 0;
+        left: 0;
+        position: absolute;
+        display: none; 
+        background-color: rgba(255, 255, 255, 0.20);
+        backdrop-filter: blur(8px);
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: -100%;
+        transition: all 0.5s;
+    }
+
+    .nav-links .mobile-menu{
+        margin-left: 0;
+    }
+
+
+    .nav-links ul{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .navbar .nav-links ul li{
+        margin: 25px 0;
+        font-size: 1.2rem;
     }
 }
 
 
-.carousel-inner{
-    width: 100vw;
-    height: 320vh;
+.carousel img{
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 
