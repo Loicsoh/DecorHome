@@ -55,7 +55,7 @@ body{
 }
 
 @media all and (max-width: 900px) {
-    .navbar{
+    .navbar{    
         padding: 0;
     }
     .navbar .menu-hamburger {
