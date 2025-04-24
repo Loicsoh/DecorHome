@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalogue de Décoration Intérieure</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Barre de Navigation -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="#" class="text-xl font-bold text-gray-800">DécoStyle</a>
+      <div class="flex items-center space-x-4">
+        <input id="searchInput" type="text" placeholder="Rechercher..." class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="relative">
+          <button id="categoryDropdownButton" class="text-gray-700 hover:text-gray-900">Catégories ▼</button>
+          <ul id="categoryDropdown" class="absolute hidden bg-white shadow-md rounded-md mt-2 w-48">
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Mobilier</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Textiles</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Éclairage</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Tous</a></li>
+          </ul>
+        </div>
+        <button class="text-gray-700 hover:text-gray-900">Promotions</button>
+        <button class="text-gray-700 hover:text-gray-900">Contact</button>
+        <button id="cartButton" class="relative">
+          🛒
+          <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Section Principale -->
+  <div class="container mx-auto px-6 py-8 grid grid-cols-12 gap-8">
+
+    <!-- Barre Latérale (Filtres) -->
+    <aside class="col-span-3 bg-white p-6 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold mb-4">Filtrer par :</h3>
+      <div class="space-y-4">
+        <div>
+          <h4 class="font-medium">Catégorie</h4>
+          <ul id="categoryFilters" class="mt-2 space-y-2">
+            <li><label class="flex items-center"><input type="checkbox" value="mobilier" class="form-checkbox"> <span class="ml-2">Mobilier</span></label></li>
+            <li><label class="flex items-center"><input type="checkbox" value="textiles" class="form-checkbox"> <span class="ml-2">Textiles</span></label></li>
+            <li><label class="flex items-center"><input type="checkbox" value="eclairage" class="form-checkbox"> <span class="ml-2">Éclairage</span></label></li>
+            <li><label class="flex items-center"><input type="checkbox" value="securite" class="form-checkbox"> <span class="ml-2">Sécurité</span></label></li>
+            <li><label class="flex items-center"><input type="checkbox" value="outil-tech" class="form-checkbox"> <span class="ml-2">Outil-tech</span></label></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-medium">Prix</h4>
+          <ul id="priceFilters" class="mt-2 space-y-2">
+            <li><label class="flex items-center"><input type="radio" name="priceRange" value="0-50" class="form-radio"> <span class="ml-2">0–50 €</span></label></li>
+            <li><label class="flex items-center"><input type="radio" name="priceRange" value="50-100" class="form-radio"> <span class="ml-2">50–100 €</span></label></li>
+            <li><label class="flex items-center"><input type="radio" name="priceRange" value="100+" class="form-radio"> <span class="ml-2">+100 €</span></label></li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Grille de Produits -->
+    <div class="col-span-9">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Produits de Décoration</h2>
+        <select id="sortOptions" class="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="popularity">Trier par : Popularité</option>
+          <option value="price-asc">Prix croissant</option>
+          <option value="price-desc">Prix décroissant</option>
+          <option value="newest">Nouveauté</option>
+        </select>
+      </div>
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Les produits seront insérés ici dynamiquement via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal du Panier -->
+  <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h3 class="text-xl font-bold mb-4">Votre Panier</h3>
+      <ul id="cartItems" class="space-y-2 max-h-64 overflow-y-auto">
+        <!-- Les articles du panier seront insérés ici -->
+      </ul>
+      <button id="closeCartModal" class="mt-4 w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition duration-300">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Script JavaScript pour interactivité -->
+  <script>
+    let cart = [];
+
+// Fonction pour récupérer les produits depuis le back-end
+async function fetchProducts(filters = {}) {
+  try {
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await fetch(`http://localhost:5000/api/products?${queryParams}`);
+    if (!response.ok) throw new Error("Erreur lors de la récupération des produits");
+    const products = await response.json();
+    displayProducts(products);
+  } catch (error) {
+    console.error("Erreur :", error.message);
+  }
+}
+
+// Fonction pour afficher les produits
+function displayProducts(products) {
+  const productGrid = document.getElementById("productGrid");
+  productGrid.innerHTML = ""; // Effacer le contenu précédent
+
+  products.forEach(product => {
+    const productCard = `
+      <div class="bg-white p-4 rounded-lg shadow-md">
+        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover rounded-md">
+        <h3 class="mt-4 text-lg font-medium">${product.name}</h3>
+        <p class="text-gray-600">$${product.price.toFixed(2)}</p>
+        <button data-id="${product._id}" class="mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300 add-to-cart">Ajouter au panier</button>
+      </div>
+    `;
+    productGrid.innerHTML += productCard;
+  });
+
+  // Ajouter des écouteurs d'événements pour les boutons "Ajouter au panier"
+  document.querySelectorAll(".add-to-cart").forEach(button => {
+    button.addEventListener("click", addToCart);
+  });
+}
+
+// Ajouter un produit au panier via une requête POST
+async function addToCart(event) {
+  const productId = event.target.getAttribute("data-id");
+  try {
+    const response = await fetch("http://localhost:5000/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId }),
+    });
+    if (response.ok) {
+      const updatedCart = await response.json();
+      updateCartUI(updatedCart);
+    } else {
+      console.error("Erreur lors de l'ajout au panier");
+    }
+  } catch (error) {
+    console.error("Erreur :", error.message);
+  }
+}
+
+// Mettre à jour l'interface du panier
+function updateCartUI(cart) {
+  const cartItems = document.getElementById("cartItems");
+  const cartCount = document.getElementById("cartCount");
+
+  cartItems.innerHTML = "";
+  cart.forEach(item => {
+    const cartItem = `
+      <li class="flex justify-between items-center">
+        <span>${item.name}</span>
+        <span>$${item.price.toFixed(2)}</span>
+      </li>
+    `;
+    cartItems.innerHTML += cartItem;
+  });
+
+  cartCount.textContent = cart.length;
+}
+
+// Filtrage des produits
+function filterProducts() {
+  const selectedCategories = Array.from(document.querySelectorAll("#categoryFilters input:checked")).map(input => input.value);
+  const selectedPriceRange = document.querySelector("#priceFilters input:checked")?.value || null;
+  const sortOption = document.getElementById("sortOptions").value;
+
+  const filters = {};
+  if (selectedCategories.length > 0) filters.categories = selectedCategories.join(",");
+  if (selectedPriceRange) filters.priceRange = selectedPriceRange;
+  if (sortOption) filters.sort = sortOption;
+
+  fetchProducts(filters);
+}
+
+// Recherche Dynamique
+document.getElementById("searchInput").addEventListener("input", async (event) => {
+  const query = event.target.value.toLowerCase();
+  if (query.trim() === "") {
+    fetchProducts(); // Récupérer tous les produits si la barre de recherche est vide
+  } else {
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/search?query=${query}`);
+      if (!response.ok) throw new Error("Erreur lors de la recherche");
+      const products = await response.json();
+      displayProducts(products);
+    } catch (error) {
+      console.error("Erreur :", error.message);
+    }
+  }
+});
+
+// Gestion du Menu Catégories
+document.getElementById("categoryDropdownButton").addEventListener("click", () => {
+  const dropdown = document.getElementById("categoryDropdown");
+  dropdown.classList.toggle("hidden");
+});
+
+// Fermer le panier
+document.getElementById("closeCartModal").addEventListener("click", () => {
+  document.getElementById("cartModal").classList.add("hidden");
+});
+
+// Ouvrir le panier
+document.getElementById("cartButton").addEventListener("click", () => {
+  document.getElementById("cartModal").classList.remove("hidden");
+});
+
+// Écouteurs d'événements
+document.getElementById("categoryFilters").addEventListener("change", filterProducts);
+document.getElementById("priceFilters").addEventListener("change", filterProducts);
+document.getElementById("sortOptions").addEventListener("change", filterProducts);
+
+// Initialisation
+window.onload = () => {
+  fetchProducts(); // Afficher tous les produits au chargement
+};
+  </script>
+</body>
+</html>
